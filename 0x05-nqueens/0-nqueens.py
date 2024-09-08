@@ -1,79 +1,50 @@
 #!/usr/bin/python3
 """
-Module to solve the N Queens interview problem.
+N queens
 """
-
 import sys
 
 
-def is_safe(board, row, col):
+if len(sys.argv) > 2 or len(sys.argv) < 2:
+    print("Usage: nqueens N")
+    exit(1)
+
+if not sys.argv[1].isdigit():
+    print("N must be a number")
+    exit(1)
+
+if int(sys.argv[1]) < 4:
+    print("N must be at least 4")
+    exit(1)
+
+n = int(sys.argv[1])
+
+
+def queens(n, i=0, a=[], b=[], c=[]):
     """
-    Check if a queen can be placed on board at (row, col).
-    The function checks the column and the diagonals.
+    find possible positions
     """
-
-    for i in range(col):
-        if board[row][i] == 1:
-            return False
-
-    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
-
-    for i, j in zip(range(row, len(board), 1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
-
-    return True
+    if i < n:
+        for j in range(n):
+            if j not in a and i + j not in b and i - j not in c:
+                yield from queens(n, i + 1, a + [j], b + [i + j], c + [i - j])
+    else:
+        yield a
 
 
-def solve_nqueens(board, col, solutions):
+def solve(n):
     """
-    Use backtracking to find all solutions for the N Queens problem.
+    solve
     """
-
-    if col >= len(board):
-        solution = []
-        for i in range(len(board)):
-            for j in range(len(board)):
-                if board[i][j] == 1:
-                    solution.append([i, j])
-        solutions.append(solution)
-        return
-
-    for i in range(len(board)):
-        if is_safe(board, i, col):
-            board[i][col] = 1
-            solve_nqueens(board, col + 1, solutions)
-            board[i][col] = 0
+    k = []
+    i = 0
+    for solution in queens(n, 0):
+        for s in solution:
+            k.append([i, s])
+            i += 1
+        print(k)
+        k = []
+        i = 0
 
 
-def nqueens(N):
-    """
-    Initialize the board and call the solver function
-    """
-    board = [[0] * N for _ in range(N)]
-    solutions = []
-    solve_nqueens(board, 0, solutions)
-    return solutions
-
-
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: nqueens N")
-        sys.exit(1)
-
-    try:
-        N = int(sys.argv[1])
-    except ValueError:
-        print("N must be a number")
-        sys.exit(1)
-
-    if N < 4:
-        print("N must be at least 4")
-        sys.exit(1)
-
-    solutions = nqueens(N)
-
-    for solution in solutions:
-        print(solution)
+solve(n)
